@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flowsave - Downloader</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --container-bg: #0a0a0a;
+            --button-bg: #1a1a1a;
+            --text-color: #ffffff;
+            --border-color: #333333;
+            --font-main: 'Courier New', Courier, monospace;
+            /* Matches the screenshot's monospaced look */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 90vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Header Section */
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        /* Dropdown Logic */
+        .dropdown {
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .dropdown-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+       
+        /* .progress-container {
+            position: absolute;
+            right: 0;
+            top: -5px;
+        }
+
+        .progress-ring {
+            width: 35px;
+            height: 35px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--text-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        } */
+
+        /* Mascot Area */
+        .mascot-area {
+            margin-bottom: 80px;
+        }
+
+        .mascot-area img {
+            width: 220px;
+            height: auto;
+        }
+
+        /* Form Area */
+        .input-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .url-input {
+            width: 100%;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--text-color);
+            font-family: var(--font-main);
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .url-input:focus {
+            border-color: #555;
+        }
+
+        .download-btn {
+            width: 100%;
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--text-color);
+            font-family: var(--font-main);
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .download-btn:hover {
+            background-color: #252525;
+        }
+
+        footer {
+            margin-top: auto;
+            font-size: 15px;
+            opacity: 0.8;
+            text-align: center;
+        }
+        footer a {
+            color: #66ff00;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header>
+            <div class="dropdown">
+                <div class="dropdown-title">
+                    <span>+ Flowsave</span>
+                </div>
+                <div class="dropdown-content">
+                    Supported: Instagram
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-ring">
+                    <span style="font-size: 10px;">↓</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="mascot-area">
+            <img src="asset/cute_ryuzaki-removebg-preview.png" alt="Ryuzaki Mascot">
+        </div>
+
+        <div class="input-group">
+            <input type="text" class="url-input" placeholder="paste the instagram link here">
+            <button class="download-btn">download</button>
+        </div>
+
+        <footer>
+            made with ❤️ by <a href="https://github.com/SARTHIKcodes" target="_blank" rel="noopener">
+                SARTHIK
+            </a>
+        </footer>
+    </div>
+    <script>
+        const btn = document.querySelector('.download-btn');
+        const input = document.querySelector('.url-input');
+    
+        btn.addEventListener('click', async () => {
+            const url = input.value.trim();
+    
+            if (!url) {
+                alert('Please paste an Instagram link!');
+                return;
+            }
+    
+            btn.textContent = 'downloading...';
+            btn.disabled = true;
+    
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+    
+                const data = await response.json();
+                console.log(data);
+    
+                // Try to get the download link from response
+                const downloadUrl = data.medias?.[0]?.url || data.url;
+    
+                if (downloadUrl) {
+    window.open(downloadUrl, '_blank');
+    btn.textContent = 'download';
+} else {
+    alert('Could not find media. Make sure the link is correct and the account is public!');
+    console.log('Full response:', data);
+    btn.textContent = 'download';
+}
+    
+            } catch (error) {
+                alert('Something went wrong!');
+                btn.textContent = 'download';
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
